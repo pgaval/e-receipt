@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://java.sun.com/xml/ns/javaee"
+xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
+	<servlet>
+		<servlet-name>UserManager</servlet-name>
+		<servlet-class>gr.gousios.ereceipt.UserManager</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>CompanyManager</servlet-name>
+		<servlet-class>gr.gousios.ereceipt.CompanyManager</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>ReceiptManager</servlet-name>
+		<servlet-class>gr.gousios.ereceipt.ReceiptManager</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>AppManager</servlet-name>
+		<servlet-class>gr.gousios.ereceipt.ClientAppManager</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>AutocompleteManager</servlet-name>
+		<servlet-class>gr.gousios.ereceipt.AutocompleteManager</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>UserManager</servlet-name>
+		<url-pattern>/user/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>CompanyManager</servlet-name>
+		<url-pattern>/company/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ReceiptManager</servlet-name>
+		<url-pattern>/receipt/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>AppManager</servlet-name>
+		<url-pattern>/app/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>AutocompleteManager</servlet-name>
+		<url-pattern>/ac/*</url-pattern>
+	</servlet-mapping>
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+	<security-constraint>
+        <web-resource-collection>
+            <url-pattern>/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+	
+</web-app>

@@ -1,0 +1,227 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>e-Αποδείξεις: Συχνές ερωτήσεις</title>
+    <meta content="text/html;charset=UTF-8"></meta>
+    <link rel="stylesheet" href="css/style.css" type="text/css"/>
+    <link type="text/css" href="css/smoothness/jquery-ui-1.7.2.custom.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="appname">e-Αποδείξεις</div>
+    <div id="tagline">Καταγράψτε τις αποδείξεις σας</div>
+    <div id="texttoc">
+    <a href="#user">Χρήστες</a> <br/>
+    <a href="#company">Εταιρείες</a> <br/>
+    <a href="#receipt">Αποδείξεις</a> <br/>
+    <a href="#error">Κωδικοί λάθους</a> <br/>
+    </div>
+    <div id="textcontent">
+      <h1>Το API της εφαρμογής</h1>
+      To API του e-Receipts τρέχει στην πλατφόρμα Google App Engine (σε Java). Η
+      εφαρμογή διαχειρίζεται 3 βασικές οντότητες:
+       <ul>
+         <li>Χρήστες</li>
+         <li>Εταιρείες</li>
+         <li>Αποδείξεις</li>
+       </ul>
+       Αντιστοιχα και το API της εφαρμογής είναι προσαρμοσμένο στο να διαχειρίζεται αυτές
+       τις 3 ενέργειες. Το API βασίζεται σε αναπαράσταση REST ενώ όλες οι μέθοδοι επιστρέφουν
+       δεδομένα σε αναπαράσταση <a href="http://www.json.org">JSON</a>, για παράδειγμα 
+       η κλήση 
+       <pre>http://localhost:8888/user/gousiosg?passwd=xxxxx</pre>
+       επιστρέφει την αναπαράσταση του αντικειμένου user στην παρακάτω μορφή:
+       <pre>
+{"user": {
+   "passwd": "xxxxxx",
+   "username": "gousiosg",
+   "name": "Γεώργιος Γούσιος",
+   "apikey": "8bb853821c64523d81d2204bcf7952"
+}}
+       </pre>
+       
+       <em>Σαν γενικός κανόνας, όλες οι κλήσεις του API για όλες τις οντότητες πέρνουν σαν παράμετρο το κλειδί του χρήστη, για παράδειγμα:</em>
+       <pre>
+http://localhost:8888/company/090034337?key=&lt;userkey&gt;
+       </pre>
+       ή
+       <pre>
+http://localhost:8888/receipt/23?key=&lt;userkey&gt;
+       </pre>
+       
+       <h3>Χρήστες</h3>
+       <pre>
+GET
+  /user/&lt;username&gt; - Check if a user name exists
+  /user/&lt;username>?key=apikey - Return full user details, for users authenticating using their api key 
+  /user/&lt;username&gt;/receipts - Get an array that includes the user receipts
+POST
+  /user/?uname=&lt;username&gt;&passwd=&lt;passwd&gt;&name=&lt;real name&gt; - Create a new user, returns an API key
+DELETE
+  /user/&lt;username&gt; - Delete a user + all user data. Use with care!
+PUT
+  /user/&lt;username&gt; - Currently unimplemented
+       </pre>
+       <h3>Εταιρείες</h3>
+       Η εφαρμογή χρησιμοποιεί μια απλή αντιστοίχηση μεταξύ ενός ΑΦΜ και πιθανών ονομάτων για την εταιρεία. 
+       <pre>
+GET
+  /company/&lt;afm&gt; - Get company details by its AFM 
+POST
+  /company/?afm=&lt;afm&gt;&name=&lt;name&gt; - Create a new company entry with an attached name (name might be ommited)
+DELETE
+  Not implemented as it would break various kinds of data. Voting should be prefered to change a company's name
+PUT
+  /company/&lt;afm&gt;/name=&lt;name&gt; - Update the company name 
+       </pre>
+       
+       <h3>Αποδείξεις</h3>
+   
+       <pre>
+GET
+  /receipt/&lt;id&gt; - Get receipt details from its id
+POST
+  /receipt/ - Create a receipt
+      Parameters:
+        key     -> User key for the user registering the receipt
+        appkey  -> Application key for the application the user is using to register the receipt
+        afm     -> AFM (ΑΦΜ) printed on the receipt. A string containing exactly 9 digits.
+        date    -> Date (in seconds since the epoch format) for the date printed on the receipt
+        amount  -> The total amount printed on the receipt, in decimal format (e.g. 22.12)
+        cat     -> Optional, a free form String for classifying receipts into categories
+DELETE
+  /receipt/&lt;id&gt; - Delete a receipt by id
+PUT
+  Not implemented yet
+    </pre>
+           <h3>Εφαρμογές</h3>
+    Η οντότητα "Εφαρμογές" υποστηρίζει την εγγραφή εφαρμογών στο σύστημα ώστε να είναι δυνατή η καταχώρηση αποδείξεων. 
+       <pre>
+GET
+  /app/&lt;appkey&gt; - Get application details (including number of receipts) from its id
+POST
+  Unimplemented - application registration is a manual process, ask gousiosg@gmail.com
+DELETE
+  Unimplemented
+PUT
+  Unimplemented
+    </pre>
+    
+    <h2>Κωδικοί λάθους</h2>
+    <table>
+      <thead>
+        <th width="20%" align="left">Κωδικός λάθους</th>
+        <th align="left">Πιθανό Αίτιο</th>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="2"><b>Χρήστες</b></td>
+        </tr>
+        <tr>
+          <td>100</td>
+          <td>Δεν υπάρχει ο χρήστης με το παρεχόμενο username</td>
+        </tr>
+        <tr>
+          <td>101</td>
+          <td>Κατά την εγγραφή, το username είναι μικρότερο από 4 χαρακτήρες</td>
+        </tr>
+        <tr>
+          <td>102</td>
+          <td>Κατά την εγγραφή, το password είναι μικρότερο από 6 χαρακτήρες</td>
+        </tr>
+        <tr>
+          <td>103</td>
+          <td>Κατά την εγγραφή, το username υπάρχει ήδη στη βάση δεδομένων</td>
+        </tr>
+        <tr>
+          <td>104</td>
+          <td>Κατά τη διαδικασία εισόδου, ο χρήστης δεν παρείχε σωστό username ή password</td>
+        </tr>
+         <tr>
+          <td colspan="2"><b>Εταιρείες</b></td>
+        </tr>
+        <tr>
+          <td>200</td>
+          <td>Δεν υπάρχει στο σύστημα εταιρεία με το παρεχόμενο ΑΦΜ</td>
+        </tr>
+        <tr>
+          <td>201</td>
+          <td>Κατά την εγγραφή ή αναζήτηση εταιρείας, το ΑΦΜ δεν είναι 9-ψήφιο αριθμητικό</td>
+        </tr>
+        <tr>
+          <td>202</td>
+          <td>Κατά την αναζήτηση εταιρείας με όνομα, δεν υπάρχει εταιρεία με τέτοιο όνομα</td>
+        </tr>
+        <tr>
+          <td>203</td>
+          <td>Κατά την εγγραφή εταιρείας, το ΑΦΜ υπάρχει ήδη</td>
+        </tr>
+        <tr>
+          <td colspan="2"><b>Αποδείξεις</b></td>
+        </tr>
+        <tr>
+          <td>301</td>
+          <td>Κατά την αναζήτηση απόδειξης με κωδικό, ο κωδικός απόδειξης είναι λάθος</td>
+        </tr>
+        <tr>
+          <td>302</td>
+          <td>Κατά την αναζήτηση απόδειξης με κωδικό, το παρεχόμενο κλειδί απόδειξης ανήκει σε απόδειξη άλλου χρήστη. 
+          Οι αποδείξεις πάντα συσχετίζονται με κάποιους χρήστες.</td>
+        </tr>
+        <tr>
+          <td>303</td>
+          <td>Κατά την αναζήτηση απόδειξης με κωδικό, το παρεχόμενο κλειδί απόδειξης δεν αντιστοιχεί σε κάποια απόδειξη.</td>
+        </tr>
+        <tr>
+          <td>304</td>
+          <td>Κατά την εισαγωγή απόδειξης, το ποσό δεν είναι αριθμός κινητής υποδιαστολης με το Αγγλικό format (πχ 23.21 όχι 23,21)</td>
+        </tr>
+        <tr>
+          <td>305</td>
+          <td>Κατά την εισαγωγή απόδειξης, η ημερομηνία δεν είναι σε format δευτερόλεπτα από το epoch (1/1/1970 0:00:00)</td>
+        </tr>
+        <tr>
+          <td>306</td>
+          <td>Κατά την εισαγωγή απόδειξης, η ημερομηνία είναι παλιότερη από 1/1/2010</td>
+        </tr>
+        <tr>
+          <td colspan="2"><b>Εφαρμογές</b></td>
+        </tr>
+        <tr>
+          <td>401</td>
+          <td>Κατά την αναζήτηση εφαρμογής, δεν υπάρχει καταχωρημένη εφαρμογή με τον παρεχόμενο κωδικό</td>
+        </tr>
+        <tr>
+          <td>402</td>
+          <td>Κατά την εισαγωγή απόδειξης, δεν υπάρχει εφαρμογή με τον παρεχόμενο κωδικό.</td>
+        </tr>
+        <tr>
+          <td colspan="2"><b>Γενικά λάθη</b></td>
+        </tr>
+        <tr>
+          <td>500</td>
+          <td>Εσωτερικό λάθος στην εφαρμογή - επικοινωνήστε με τον διαχειρηστή</td>
+        </tr>
+        <tr>
+          <td>501</td>
+          <td>Κάποια από τις παραμέτρους της αίτησης είναι λάθος</td>
+        </tr>
+        <tr>
+          <td>502</td>
+          <td>Κάποια από τις παραμέτρους της αίτησης λείπει</td>
+        </tr>
+        <tr>
+          <td>503</td>
+          <td>Ο χρήστης με το παρεχόμενο κλειδί δεν έχει δικαιώματα πρόσβασης στο URL που ζητήθηκε</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <div id="footer">
+    <a href="index.jsp">Κεντρική σελίδα</a> 
+    Σχετικά
+    <a href="faq.html">Συχνές ερωτήσεις</a>
+    <a href="api.html">Για προγραμματιστές</a>
+    <a href="http://groups.google.com/group/e-receipt">Επικοινωνία</a>
+  </div>
+  </body>
+</html>

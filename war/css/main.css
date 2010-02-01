@@ -1,0 +1,227 @@
+@CHARSET "UTF-8";
+
+body {
+	font-family: sans-serif;
+}
+
+#appname {
+	font-size: xx-large;
+	font-weight: bold;
+	text-align: center;
+}
+
+#tagline {
+	font-size: normal;
+	font-style: oblique;
+	text-align: center;
+}
+
+#footer {
+	position: relative;
+	text-align: center;
+	padding: 2px;
+}
+
+div.container {
+	margin: auto;
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+ul.tabNavigation {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+ul.tabNavigation li {
+	display: inline;
+}
+
+ul.tabNavigation li a span {
+	
+}
+
+UL.tabNavigation LI A:focus {
+	outline: 0;
+}
+
+div.tabs>div {
+	padding: 5px;
+	margin-top: 3px;
+	border: 5px solid #333;
+}
+
+div.tabs>div h2 {
+	margin-top: 0;
+}
+
+.button {
+	font-size: 15px;
+	height: 1.85em !important;
+	margin: 0.2em;
+	padding: 0px 8px;
+	border: 1px solid rgb(153, 153, 153);
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgb(255, 255, 255)
+		), to(rgb(221, 221, 221) ) );
+	-webkit-appearance: button;
+	-moz-appearance: button;
+	-moz-binding: none;
+	-moz-box-sizing: border-box;
+	-moz-user-select: none;
+	-x-system-font: -moz-button;
+	background-color: buttonface;
+}
+
+label.error {
+	background:
+		url('/img/unchecked.gif')
+		no-repeat;
+	padding-left: 16px;
+	margin-left: .3em;
+	font-size: small;
+}
+
+label.valid {
+	background:
+		url('/img/checked.gif')
+		no-repeat;
+	display: block;
+	width: 16px;
+	height: 16px;
+}
+
+input.error {
+	border: 1px solid red;
+}
+
+table.tablesorter {
+	font-size: 0.8em;
+	border: 1px solid #000;
+	width: 100%;
+}
+
+table.tablesorter th {
+	text-align: left;
+	font-size: 0.9em;
+}
+
+table.tablesorter td {
+	padding: 2px;
+	font-size: 0.8em;
+}
+
+table.tablesorter .even {
+	background-color: #ECECEC;
+}
+table.tablesorter .odd {
+	background-color: #ffffff;
+}
+table.tablesorter .header {
+	background-image: url(../img/bg.png);
+	background-repeat: no-repeat;
+	padding-left: 30px;
+	padding-top: 6px;
+}
+table.tablesorter .headerSortUp {
+	background-image: url(../img/asc.png);
+	background-repeat: repeat-x;
+}
+table.tablesorter .headerSortDown {
+	background-image: url(../img/desc.png);
+	background-repeat: repeat-x;
+}
+#pager {
+	position: relative;
+	padding: 2px;
+}
+
+div.tablesorterPager {
+	padding: 10px 0 10px 0;
+	background-color: #D6D2C2;
+	text-align: center;
+}
+div.tablesorterPager span {
+	padding: 0 5px 0 5px;
+}
+div.tablesorterPager input.prev {
+	width: auto;
+	margin-right: 10px;
+}
+div.tablesorterPager input.next {
+	width: auto;
+	margin-left: 10px;
+}
+div.tablesorterPager input {
+	font-size: 8px;
+	width: 50px;
+	border: 1px solid #330000;
+	text-align: center;
+}
+
+span.hugeletters {
+	font-size: xx-large;
+	vertical-align: bottom;
+}
+
+.hover {
+	color: white;
+	background-color: black;
+	cursor: pointer;
+}
+
+#addreceipt {
+	width : 100%;
+	margin-top: 10px;
+	display: none;
+}
+
+.ac_results {
+	padding: 0px;
+	border: 1px solid black;
+	background-color: white;
+	overflow: hidden;
+	z-index: 99999;
+}
+
+.ac_results ul {
+	width: 100%;
+	list-style-position: outside;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.ac_results li {
+	margin: 0px;
+	padding: 2px 5px;
+	cursor: default;
+	display: block;
+	font: menu;
+	font-size: 12px;
+	line-height: 16px;
+	overflow: hidden;
+}
+
+.ac_loading {
+	background: white url('/img/wait.gif') right center no-repeat;
+}
+
+.ac_odd {
+	background-color: #eee;
+}
+
+.ac_over {
+	background-color: #0A246A;
+	color: white;
+}
+
+.inactive {
+	display: none; 
+}
+
+#namenotcorrect {
+	font-size: x-small;
+	text-decoration: underline;
+}
+

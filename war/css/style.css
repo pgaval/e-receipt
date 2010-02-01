@@ -1,0 +1,167 @@
+@CHARSET "UTF-8";
+
+body {
+	font-family: sans-serif;
+}
+
+#appname {
+	font-size: xx-large;
+	font-weight: bold;
+	text-align: center;
+}
+
+#tagline {
+	font-size: normal;
+	font-style: oblique;
+	text-align: center;
+}
+
+#content {
+	position: relative;
+	font-size: 0.9em;
+	height: 230px;
+	text-align: left;
+	margin-left: auto;
+	margin-right: auto;
+	width : 520px;
+	margin-top: 15px;
+}
+
+#login {
+	position: absolute;
+	width: 250px;
+	left: 0px;
+	background-color: #c9595f;
+	font-size: 1em;
+	text-align: center;
+	color: #ffffff;
+	height: 230px;
+}
+
+#register {
+	position: absolute;
+	width: 250px;
+	left: 260px;
+	background-color: #f47c17;
+	font-size: 1em;
+	text-align: center;
+	color: #ffffff;
+	height: 230px;
+}
+
+#google {
+	position: relative;
+	width: 510px;
+	border: 1px;
+	border-style:solid;
+	border-color: #000000;
+	background-color: #aaaaaa;
+	font-size: 1em;
+	text-align: center;
+	color: #ffffff;
+	position: relative;
+	margin: 15px auto;
+}
+
+#footer {
+	position: relative;
+	border: 1px;
+	border-top-style:solid;
+	border-top-color: #bbbbbb;
+	text-align: center;
+	padding: 2px;
+}
+
+.teaser {
+	font-weight: bold;
+	font-size: 18px;	
+}
+
+#texttoc {
+	display: block;
+	float: left;
+	margin: 0px;
+	width: 200px;
+}
+
+#textcontent {
+	display: block;
+	float: none;
+	margin: 0px 0px 0px 200px;
+	width: auto;
+	border-left: thin;
+	border-left-style: dotted;
+	border-left-color: #cccccc;
+	padding: 5px;
+	font-size: small;
+}
+
+.button {
+	font-size: 15px;
+	height: 1.85em !important;
+	margin: 0.2em;
+	padding: 0px 8px;
+	border: 1px solid rgb(153, 153, 153);
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgb(255, 255, 255)), to(rgb(221, 221, 221)));
+	-webkit-appearance: button;
+	-moz-appearance:button;
+	-moz-binding:none;
+	-moz-box-sizing:border-box;
+	-moz-user-select:none;
+	-x-system-font:-moz-button;
+	background-color:buttonface;
+}
+
+.roundedtext {
+	background: #FFFFFF none repeat scroll 0 0;
+	border-color: #EEEEEE;
+	border-style: solid;
+	border-width: 2px 2px 2px 2px;
+	font-family: Helvetica, Arial, Sans-serif;
+	font-size: 16px;
+	font-size-adjust: none;
+	font-stretch: normal;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: bold;
+	line-height: normal;
+	margin: 0;
+	outline-width: 0;
+	padding: 4px 4px;
+	width: 200px;
+}
+
+label {
+	width: 10em; 
+	float: left;
+}
+
+label.error {
+	width: 20em; 
+	float: none;
+	color: red;
+	padding-left: .5em;
+	vertical-align: center;
+}
+
+#eunamelbl {
+	text-align: center;
+}
+
+#loginwait {
+	display: none;
+	vertical-align: center;
+	margin-left: auto;
+    margin-right: auto;
+    width: 130px;
+    font-size: 0.6em;
+}
+
+#bottomad {
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	top: auto;
+	bottom: 0px;
+	width: 100%;
+}

@@ -117,7 +117,8 @@
               <td align="right">
                 <input id="key" type="hidden" name="key" value="<%=key%>"/>
                 <input id="username" type="hidden" name="username" value="<%=user%>"/>
-                <input id="appkey" type="hidden" name="appkey" value="aa6cc36372ab959b76447beda23cc15"/>
+                <!--<input id="appkey" type="hidden" name="appkey" value="aa6cc36372ab959b76447beda23cc15"/>-->
+                <input id="appkey" type="hidden" name="appkey" value="16bda923a15aeed26b84638b89d69"/>
                 <!-- <input id="appkey" type="hidden" name="appkey" value="99e8613e54821382169667abae5b882"/>--> 
               </td>
             </tr>
@@ -148,7 +149,8 @@
           <th>Επωνυμία</th> 
           <th>Ημερομηνία</th>
           <th>Κατηγορία</th>
-          <th>Ποσό</th> 
+          <th>Ποσό</th>
+          <th>Ενέργειες</th>  
         </tr>
       </thead> 
       <tbody> 
@@ -208,24 +210,6 @@
       <a href="faq.html">Συχνές ερωτήσεις</a>
       <a href="api.html">Για προγραμματιστές</a>
       <a href="http://groups.google.com/group/e-receipt">Επικοινωνία</a>
-  </div>
-  <div id="addcompany" style="visibility: hidden">
-  <form id="newcompany" action="/company/" method="POST">
-    <fieldset>
-      <legend>Παρακαλούμε συμπληρώστε τα στοιχεία της επιχείρησης</legend>
-      <p>
-        <label for="afm">ΑΦΜ</label><em>*</em>
-        <input id="afm" size="35" class="required roundedtext" type="text" name="afm"/>
-      </p>
-      <p>
-        <label for="name">Επωνυμία</label><em>*</em>
-        <input id="name" size="35" class="required roundedtext" type="text" name="name"/>
-      </p>
-      <p>
-        <input class="button" type="submit" value="ΟΚ"/>
-      </p>
-    </fieldset>
-  </form>
   </div>
   </body>
 </html>

@@ -206,6 +206,23 @@ $(document).ready(function(){
     	$("#addreceipt").css('display', 'block');
     	$("#newreceiptlbl img").toggle();
     });
+    
+    $('.edit').bind('click', function(e) {
+		//nesting is: table->tbody->tr->td->span 
+		edit($(e.target).parent().parent().parent().attr("id"));
+	});
+
+	$('.save').bind('click', function(e) {
+		//nesting is: table->tbody->tr->td->span 
+		save($(e.target).parent().parent().parent().attr("id"));
+		cancel($(e.target).parent().parent().parent().attr("id"));
+	});
+
+	$('.cancel').bind('click', function(e) {
+		//nesting is: table->tbody->tr->td->span 
+		cancel($(e.target).parent().parent().parent().attr("id"));
+	});
+    
 });
 
 function fillReceipts() {
@@ -240,7 +257,7 @@ function fillReceipts() {
 			var amount = 0;
 			
 			for (x in data) {
-				line += "<tr>";
+				line += '<tr id="' + data[x].receipt.id + '">';
 				line += "<td>" + counter + "</td>";
 				line += "<td>" + data[x].receipt.company.company.afm + "</td>";
 				
@@ -255,6 +272,12 @@ function fillReceipts() {
 					+ date.getUTCDate() + " "+ month[date.getMonth()]  + "</td>";
 				line += "<td>" + data[x].receipt.cat + "</td>";
 				line += "<td>" + data[x].receipt.amount + "</td>";
+				line += "<td>";
+				line += '<span class="edit active"><img width="13" src="/img/edit.png" alt="Επεξεργασία εγγραφής"></span>';
+				line += '<span class="save inactive"><img width="13" src="/img/save.png" alt="Αποθήκευση εγγραφής"></span>';
+				line += '<span class="cancel inactive"><img width="13" src="/img/stop.png" alt="Ακύρωση επεξεργασίας"></span>';
+				line += '<span class="wait inactive"><img width="13" src="/img/wait.gif" alt="Αποστολή αλλαγών"></span>';
+				line += '</td>';
 				amount += (data[x].receipt.amount - 0);
 				line += "</tr>";
 				counter ++;
@@ -279,4 +302,47 @@ function fillReceipts() {
 			alert('Πρόβλημα κατά την ανάκτηση των αποδείξεων: ' + formError.error.msg);
 		}
 	});
+}
+
+function save(rowid) {
+	if (!$('tr[id=' + rowid +']').is('.editing'))
+		return;
+		
+	$("#editform").submit(function() {
+		$('tr[id=' + rowid +'] .wait').toggleClass("inactive");
+		$.ajax({
+			url: '/DESFront09/apait',
+			data: {
+				
+			},
+			timeout: 10000,
+			success: function(html) {
+				$('tr[id=' + rowid +'] .wait').toggleClass("inactive");
+			}, 
+			error: function (html) {
+				$('tr[id=' + rowid +'] .wait').toggleClass("inactive");
+			}
+		});
+	});
+}
+
+function cancel(rowid) {
+	if (!$('tr[id=' + rowid +']').is('.editing'))
+		return;
+
+	var counter = 0;
+	$('tr[id=' + rowid +'] td').each (function(){
+		var node = $('th:eq(' + counter + ')');
+				
+		if (!$(node).is('.dontedit')) {
+			var value = $(this).find('input').val();
+			$(this).empty();
+			$(this).text(value);
+		}
+		counter ++;
+	});
+	$('tr[id=' + rowid +']').toggleClass("editing");
+	$('tr[id=' + rowid +'] .edit').toggleClass("inactive");
+	$('tr[id=' + rowid +'] .save').toggleClass("inactive");
+	$('tr[id=' + rowid +'] .cancel').toggleClass("inactive");
 }

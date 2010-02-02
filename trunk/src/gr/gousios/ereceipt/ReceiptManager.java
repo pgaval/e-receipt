@@ -172,7 +172,8 @@ public class ReceiptManager extends HttpServlet {
 				
 				em.persist(c);
 			}
-			if (cname != null && !cname.trim().equals(""))
+			if (cname != null && !cname.trim().equals("") 
+					&& c.getName() != null && !c.getName().equals(""))
 				c.setName(cname);
 
 			r.setAfm(c.getAfm());
@@ -202,6 +203,8 @@ public class ReceiptManager extends HttpServlet {
 		EntityManager em = EMF.get().createEntityManager();
 		if (!isAuth(req.getParameter("key"), resp, em)) 
 			return;
+
+		
 		
 	}
 	

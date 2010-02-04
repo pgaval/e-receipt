@@ -39,6 +39,11 @@ public class ClientAppManager extends HttpServlet {
 		if (urlParts.length < 2) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			resp.getWriter().print(Error.noAppId(null).toJSON(em));
+			
+			/*for (ClientApp app : ClientApp.getAll(em)) {
+				resp.setStatus(HttpServletResponse.SC_OK);
+				resp.getWriter().print(app.toJSON(em));
+			}*/
 			em.close();
 			return;
 		}
@@ -68,7 +73,7 @@ public class ClientAppManager extends HttpServlet {
 		String url = req.getRequestURL().toString();
 		String key = req.getParameter("key");
 		
-		if (key == null || !key.equals("0xdeadbabe")) {
+		if (key == null || !key.equals(Keys.APPREGKEY)) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			resp.getWriter().print(Error.notAuthorised("").toJSON(em));
 			em.close();

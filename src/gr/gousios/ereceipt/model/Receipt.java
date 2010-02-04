@@ -14,11 +14,15 @@ GNU General Public License for more details.
 
 package gr.gousios.ereceipt.model;
 
+import gr.gousios.ereceipt.EMF;
+
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.FetchType;
@@ -26,8 +30,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Query;
 
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 
 import net.sf.json.JSONObject;
 
@@ -47,7 +53,7 @@ public class Receipt extends ModelObject {
 	@Basic
 	private String afm;
 	
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
 	private User user;
 	
 	@Basic
@@ -73,10 +79,7 @@ public class Receipt extends ModelObject {
 	public void setAmount(float amount) {
 		this.amount = amount;
 	}
-
-	public User getUser() {
-		return user;
-	}
+	
 	public void setUser(User user) {
 		this.user = user;
 	}
@@ -88,10 +91,6 @@ public class Receipt extends ModelObject {
 	public void setAfm(String afm) {
 		this.afm = afm;
 	}
-
-	public static Receipt fromId(Long id) {
-		return null;
-	}
 	
 	public Key getId() {
 		return id;
@@ -99,6 +98,38 @@ public class Receipt extends ModelObject {
 	
 	public void setId(Key id) {
 		this.id = id;
+	}
+	
+	public User getUser() {
+		if (user != null)
+			return user;
+		
+		EntityManager em = EMF.get().createEntityManager(); 
+		Query q = em.createQuery("select u from User as u " +
+		" where u.id=:key");
+		Key k = (new KeyFactory.Builder("User", id.getParent().getId())).getKey();
+		q.setParameter("key", k);
+		List<User> l = (List<User>)q.getResultList();
+		
+		if (l.isEmpty()) {
+			return null;
+		}
+		
+		return l.get(0);	
+	}
+	
+	public static Receipt fromId(EntityManager em, Long userId, Long id) {
+		Query q = em.createQuery("select r from Receipt as r " +
+		" where r.id=:key");
+		Key k = (new KeyFactory.Builder("User", userId)).addChild("Receipt", id).getKey();
+		q.setParameter("key", k);
+		List<Receipt> l = (List<Receipt>)q.getResultList();
+		
+		if (l.isEmpty()) {
+			return null;
+		}
+		
+		return l.get(0);
 	}
 	
 	@Override
@@ -111,7 +142,7 @@ public class Receipt extends ModelObject {
 		values.put("amount", String.valueOf(amount));
 		if (getAfm() != null)
 			values.put("company", Company.fromAFM(em, afm).toJSON(em));
-		if (getUser() != null)
+		if (user != null)
 			values.put("user", user.toJSON(em));
 		if (getCategory() != null)
 			values.put("cat", getCategory());

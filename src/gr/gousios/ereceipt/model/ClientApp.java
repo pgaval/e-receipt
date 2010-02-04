@@ -89,6 +89,11 @@ public class ClientApp extends ModelObject {
 
 		return l.get(0);
 	}
+	
+	public static List<ClientApp> getAll(EntityManager em) {
+		Query q = em.createQuery("select c from ClientApp as c ");
+		return (List<ClientApp>)q.getResultList();
+	}
 
 	@Override
 	public String toJSON(EntityManager em) {

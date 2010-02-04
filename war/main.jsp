@@ -38,13 +38,6 @@
     <link rel="stylesheet" href="css/main.css" type="text/css"/>
     <link type="text/css" href="css/smoothness/jquery-ui-1.7.2.custom.css" rel="stylesheet" />
     <script type="text/javascript" src="js/lib-main.js"></script> 
-    <!--<script type="text/javascript" src="js/jquery.js"></script>
-    <script type="text/javascript" src="js/jquery-ui.js"></script>
-    <script type="text/javascript" src="js/ui.datepicker-el.js"></script>
-    <script type="text/javascript" src="js/jquery.validate.js"></script>
-    <script type="text/javascript" src="js/jquery.tablesorter.js"></script>
-    <script type="text/javascript" src="js/jquery.autocomplete.js"></script>
-    <script type="text/javascript" src="js/json.js"></script>-->
     <script type="text/javascript" src="js/initmain.js"></script> 
   </head>
   <body>
@@ -126,17 +119,16 @@
           </fieldset>
         </form>
         </td>
-        <td width="10%" align="right"><!-- 
+        <td width="10%" align="right"> 
           <script type="text/javascript"><!--
           google_ad_client = "pub-9563091108624083";
           /* 300x250-mainpage */
           google_ad_slot = "3434011668";
           google_ad_width = 300;
           google_ad_height = 250;
-          //--
+          //-->
           </script>
           <script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
-          -->
         </td>
         </tr>
       </table>

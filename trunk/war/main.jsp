@@ -1,3 +1,4 @@
+<%@page import="gr.gousios.ereceipt.Keys"%>
 <%
   
   if (request.getParameter("logout") != null) {
@@ -30,6 +31,7 @@
 %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN "http://www.w3.org/TR/html4/strict.dtd">
+
 <html>
   <head>
     <title>e-Αποδείξεις: Καταγράψτε τις αποδείξεις σας!</title>
@@ -117,25 +119,24 @@
               <td align="right">
                 <input id="key" type="hidden" name="key" value="<%=key%>"/>
                 <input id="username" type="hidden" name="username" value="<%=user%>"/>
-                <!--<input id="appkey" type="hidden" name="appkey" value="aa6cc36372ab959b76447beda23cc15"/>-->
-                <input id="appkey" type="hidden" name="appkey" value="16bda923a15aeed26b84638b89d69"/>
-                <!-- <input id="appkey" type="hidden" name="appkey" value="99e8613e54821382169667abae5b882"/>--> 
+                <input id="appkey" type="hidden" name="appkey" value="<%=Keys.CLIENT %>" />
               </td>
             </tr>
             </table>
           </fieldset>
         </form>
         </td>
-        <td width="10%" align="right">
+        <td width="10%" align="right"><!-- 
           <script type="text/javascript"><!--
           google_ad_client = "pub-9563091108624083";
           /* 300x250-mainpage */
           google_ad_slot = "3434011668";
           google_ad_width = 300;
           google_ad_height = 250;
-          //-->
+          //--
           </script>
           <script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
+          -->
         </td>
         </tr>
       </table>
@@ -156,25 +157,6 @@
       <tbody> 
       </tbody> 
       </table>
-      <!-- 
-      <div id="pager" class="pager">
-      <form>
-        <img src="img/first.png" class="first"/>
-        <img src="img/prev.png" class="prev"/>
-        <input type="text" class="pagedisplay" size="4"/>
-        <img src="img/next.png" class="next"/>
-        <img src="img/last.png" class="last"/>
-        <select class="pagesize">
-        <option  value="10">10</option>
-        <option value="20">20</option>
-        <option selected="selected"  value="40">40</option>
-        <option value="60">60</option>
-        <option value="80">80</option>
-        <option value="100">100</option>
-      </select>
-    </form>
-    </div>
-     -->
     </div>
     <div id="tab2">
       <table>

@@ -90,14 +90,6 @@ $(document).ready(function(){
     	"Παρακαλώ εισάγετε ένα έγκυρο ΑΦΜ"
     );
     
-    /*$("#afm").autocomplete(
-    	"/ac?type=company", 
-    	{ 
-    	     minChars : 6, 
-    	     delay : 300
-    	}
-    );*/
-    
     $("#afm").bind('change', function(e) {
     	$.ajax({
     		type: 'GET',
@@ -207,22 +199,6 @@ $(document).ready(function(){
     	$("#newreceiptlbl img").toggle();
     });
     
-    $('.edit').bind('click', function(e) {
-		//nesting is: table->tbody->tr->td->span 
-		edit($(e.target).parent().parent().parent().attr("id"));
-	});
-
-	$('.save').bind('click', function(e) {
-		//nesting is: table->tbody->tr->td->span 
-		save($(e.target).parent().parent().parent().attr("id"));
-		cancel($(e.target).parent().parent().parent().attr("id"));
-	});
-
-	$('.cancel').bind('click', function(e) {
-		//nesting is: table->tbody->tr->td->span 
-		cancel($(e.target).parent().parent().parent().attr("id"));
-	});
-    
 });
 
 function fillReceipts() {
@@ -273,9 +249,10 @@ function fillReceipts() {
 				line += "<td>" + data[x].receipt.cat + "</td>";
 				line += "<td>" + data[x].receipt.amount + "</td>";
 				line += "<td>";
-				line += '<span class="edit active"><img width="13" src="/img/edit.png" alt="Επεξεργασία εγγραφής"></span>';
+				line += '<span class="edit active"><img width="13" src="/img/edit.png" alt="Επεξεργασία εγγραφής">Επεξεργασία</span>';
 				line += '<span class="save inactive"><img width="13" src="/img/save.png" alt="Αποθήκευση εγγραφής"></span>';
 				line += '<span class="cancel inactive"><img width="13" src="/img/stop.png" alt="Ακύρωση επεξεργασίας"></span>';
+				line += '<span class="delete active"><img width="13" src="/img/del.png" alt="Διαγραφή απόδειξης">Διαγραφή</span>';
 				line += '<span class="wait inactive"><img width="13" src="/img/wait.gif" alt="Αποστολή αλλαγών"></span>';
 				line += '</td>';
 				amount += (data[x].receipt.amount - 0);
@@ -284,9 +261,11 @@ function fillReceipts() {
 			}
 			
 			$("#receipts tbody").append(line);
-			$("table").trigger("update");
-			var sorting = [[3,1],[0,0]]; 
-			$("table").trigger("sorton",[sorting]);
+			if (!line == '') {
+				$("table").trigger("update");
+				var sorting = [[3,1],[0,0]]; 
+				$("table").trigger("sorton",[sorting]);
+			}
 			
 			var am = amount + '';
 			if (am.match(/^\d*\.\d{3,}$/)) {
@@ -296,6 +275,23 @@ function fillReceipts() {
 				$("#amountval").text(am);
 			}
 			$("#numreceipts").text(counter - 1);
+			
+			$('.edit').bind('click', function(e) { 
+				edit($(e.target).parent().parent().parent().attr("id"));
+			});
+
+			$('.save').bind('click', function(e) { 
+				save($(e.target).parent().parent().parent().attr("id"));
+				cancel($(e.target).parent().parent().parent().attr("id"));
+			});
+
+			$('.cancel').bind('click', function(e) {
+				cancel($(e.target).parent().parent().parent().attr("id"));
+			});
+				
+			$('.delete').bind('click', function(e) {
+				delReceipt($(e.target).parent().parent().parent().attr("id"));
+			});
 		},
 		error: function(xhr, status, error) {
 			var formError = jsonParse(xhr.responseText);
@@ -311,7 +307,7 @@ function save(rowid) {
 	$("#editform").submit(function() {
 		$('tr[id=' + rowid +'] .wait').toggleClass("inactive");
 		$.ajax({
-			url: '/DESFront09/apait',
+			url: '//apait',
 			data: {
 				
 			},
@@ -345,4 +341,28 @@ function cancel(rowid) {
 	$('tr[id=' + rowid +'] .edit').toggleClass("inactive");
 	$('tr[id=' + rowid +'] .save').toggleClass("inactive");
 	$('tr[id=' + rowid +'] .cancel').toggleClass("inactive");
+}
+
+function delReceipt (rowid) {
+	
+	var answer = confirm("Είστε σίγουρος/-η ότι θέλετε να διαγράψετε την απόδειξη ?");
+	
+	if (!answer)
+		return;
+	
+	$.ajax({
+		url: '/receipt/' + rowid + '?key=' + $("#key").val(),
+		data: {
+			key : $("#key").val()
+		},
+		type: 'DELETE',
+		timeout: 50000,
+		success: function() {
+			fillReceipts();
+		},
+		error: function(xhr, status, error) {
+			var formError = jsonParse(xhr.responseText);
+			alert('Πρόβλημα κατά την διαγραφή της απόδειξης:' + formError.error.msg);
+		}
+	});
 }

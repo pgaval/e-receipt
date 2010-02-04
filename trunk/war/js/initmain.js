@@ -249,11 +249,10 @@ function fillReceipts() {
 				line += "<td>" + data[x].receipt.cat + "</td>";
 				line += "<td>" + data[x].receipt.amount + "</td>";
 				line += "<td>";
-				line += '<span class="edit active"><img width="13" src="/img/edit.png" alt="Επεξεργασία εγγραφής">Επεξεργασία</span>';
-				line += '<span class="save inactive"><img width="13" src="/img/save.png" alt="Αποθήκευση εγγραφής"></span>';
-				line += '<span class="cancel inactive"><img width="13" src="/img/stop.png" alt="Ακύρωση επεξεργασίας"></span>';
+				line += '<span class="edit active"><img width="13" src="/img/edit.png" alt="Επεξεργασία εγγραφής">Διόρθωση</span>';
+				line += '<span class="save inactive"><img width="13" src="/img/save.png" alt="Αποθήκευση εγγραφής">Αποθήκευση</span>';
+				line += '<span class="cancel inactive"><img width="13" src="/img/stop.png" alt="Ακύρωση επεξεργασίας">Ακύρωση</span>';
 				line += '<span class="delete active"><img width="13" src="/img/del.png" alt="Διαγραφή απόδειξης">Διαγραφή</span>';
-				line += '<span class="wait inactive"><img width="13" src="/img/wait.gif" alt="Αποστολή αλλαγών"></span>';
 				line += '</td>';
 				amount += (data[x].receipt.amount - 0);
 				line += "</tr>";
@@ -282,11 +281,10 @@ function fillReceipts() {
 
 			$('.save').bind('click', function(e) { 
 				save($(e.target).parent().parent().parent().attr("id"));
-				cancel($(e.target).parent().parent().parent().attr("id"));
 			});
 
 			$('.cancel').bind('click', function(e) {
-				cancel($(e.target).parent().parent().parent().attr("id"));
+				fillReceipts();
 			});
 				
 			$('.delete').bind('click', function(e) {
@@ -300,47 +298,89 @@ function fillReceipts() {
 	});
 }
 
+function edit(rowid) {
+
+	if ($('tr').is('.editing'))
+		return;
+	
+	//Date, add an inline date picker
+	var node = $(($('tr[id=' + rowid +'] td')[3]));
+	var ts = $($(node).find('span')[0]).text();
+	var date = new Date((ts - 0));
+	var dateStr = date.getUTCDate() + '/'  + (date.getUTCMonth() + 1) + '/' + date.getUTCFullYear();
+	node.html('<input size="12" type="text" value="' + dateStr + '" id="editdate"/>');
+	
+	var picker = $("#editdate").datepicker({
+		showOn: 'button', 
+   		buttonImage: 'img/cal.gif', 
+   		buttonImageOnly: true,
+   		dateFormat: 'dd/mm/yy',
+   		constrainInput: true,
+   		defaultDate : date,
+   		autosize: true,
+   		duration: '',
+   		gotoCurrent: true,
+   		minDate: new Date(2010, 0, 1)
+   		},
+   		$.datepicker.regional['el']
+   	);
+	
+	
+	//Category field, copy dropdown from add receipt form
+	node = $(($('tr[id=' + rowid +'] td')[4]));
+	var value = node.html();
+	node.html($("#cat").parent().html());
+	$($(node).find("select")[0]).attr("id", "editcat");  //Set unique id 
+	$.each($(node).find("option"), function(index, node) {
+		if (value == $(node).html()) {
+			$(node).attr("selected", "selected");
+		} else {
+			$(node).removeAttr("selected");
+		}
+	});
+	
+	//Amount, just add an input box
+	node = $(($('tr[id=' + rowid +'] td')[5]));
+	node.html('<input size="7" type="text" value="' + node.html() + '" id="editamount"/>');
+
+	//Append a spinner icon to indicate progress upon save
+	node = $(($('tr[id=' + rowid +'] td')[6]));
+	node.append('<span class="wait inactive"><img width="13" src="/img/wait.gif" alt="Αποστολή αλλαγών"></span>');
+
+	$('tr[id=' + rowid +']').toggleClass("editing");
+	$('.edit').toggleClass("inactive");
+	$('tr[id=' + rowid +'] .save').toggleClass("inactive");
+	$('tr[id=' + rowid +'] .cancel').toggleClass("inactive");
+	$('.delete').toggleClass("inactive");
+}
+
 function save(rowid) {
 	if (!$('tr[id=' + rowid +']').is('.editing'))
 		return;
-		
-	$("#editform").submit(function() {
-		$('tr[id=' + rowid +'] .wait').toggleClass("inactive");
-		$.ajax({
-			url: '//apait',
-			data: {
-				
-			},
-			timeout: 10000,
-			success: function(html) {
-				$('tr[id=' + rowid +'] .wait').toggleClass("inactive");
-			}, 
-			error: function (html) {
-				$('tr[id=' + rowid +'] .wait').toggleClass("inactive");
-			}
-		});
-	});
-}
-
-function cancel(rowid) {
-	if (!$('tr[id=' + rowid +']').is('.editing'))
-		return;
-
-	var counter = 0;
-	$('tr[id=' + rowid +'] td').each (function(){
-		var node = $('th:eq(' + counter + ')');
-				
-		if (!$(node).is('.dontedit')) {
-			var value = $(this).find('input').val();
-			$(this).empty();
-			$(this).text(value);
+	 
+	var date =  $("#editdate").val();
+	var df = date.split("/");
+	var d = new Date(df[2], df[1] - 1, df[0], 9, 0, 0, 0);
+	
+	$('.wait').toggleClass("inactive");
+	
+	$.ajax({
+		url: '/receipt/' + rowid + 
+			'?key=' + $("#key").val() + 
+			'&amount=' + $("#editamount").val() +
+			'&date=' + (d.getTime() / 1000) +
+			'&cat=' + $("#editcat").val(),
+		type: 'PUT',
+		timeout: 50000,
+		success: function(html) {
+			fillReceipts();
+		}, 
+		error: function(xhr, status, error) {
+			$('tr[id=' + rowid +'] .wait').toggleClass("inactive");
+			var formError = jsonParse(xhr.responseText);
+			alert('Πρόβλημα κατά την αποθήκευση των νέων τιμών:' + formError.error.msg);
 		}
-		counter ++;
 	});
-	$('tr[id=' + rowid +']').toggleClass("editing");
-	$('tr[id=' + rowid +'] .edit').toggleClass("inactive");
-	$('tr[id=' + rowid +'] .save').toggleClass("inactive");
-	$('tr[id=' + rowid +'] .cancel').toggleClass("inactive");
 }
 
 function delReceipt (rowid) {

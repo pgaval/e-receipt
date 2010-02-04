@@ -42,50 +42,9 @@ public class ReceiptManager extends HttpServlet {
 		resp.setCharacterEncoding("utf-8");
 		
 		EntityManager em = EMF.get().createEntityManager();
-		String url = req.getRequestURL().toString();
-		String key = req.getParameter("key");
-		
-		User u = User.fromApiKey(em, key);
-		
-		if (key == null || u == null) {
-			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			resp.getWriter().print(Error.notAuthorised(key).toJSON(em));
-			return;
-		}
-		
-		String[] urlParts = url.split("receipt/");
-		
-		if (urlParts.length < 2) {
-			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			resp.getWriter().print(Error.noReceipt("").toJSON(em));
-			em.close();
-			return;
-		}
-		
-		String receiptId = urlParts[1].split("/")[0];
-		
-		Long id = 0L;
-		try {
-			id = Long.parseLong(receiptId);
-		} catch (NumberFormatException nfe) {
-			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			resp.getWriter().print(Error.noReceipt(receiptId).toJSON(em));
-			em.close();
-			return;
-		}
-		
-		Receipt r = Receipt.fromId(em, u.getId().getId(), id);
+		Receipt r = getReceiptFromRequest(req, resp, em);
 		
 		if (r == null) {
-			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			resp.getWriter().print(Error.noReceipt(receiptId).toJSON(em));
-			em.close();
-			return;
-		}
-		
-		if (!r.getUser().getApiKey().equals(key)) {
-			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			resp.getWriter().print(Error.notUsersReceipt().toJSON(em));
 			em.close();
 			return;
 		}
@@ -207,7 +166,86 @@ public class ReceiptManager extends HttpServlet {
 	@Override
 	public void doDelete(HttpServletRequest req, HttpServletResponse resp)
 		throws IOException {
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf-8");
+		
 		EntityManager em = EMF.get().createEntityManager();
+		Receipt r = getReceiptFromRequest(req, resp, em);
+		
+		if (r == null) {
+			em.close();
+			return;
+		}
+
+		em.remove(r);
+		resp.setStatus(HttpServletResponse.SC_OK);
+		em.close();
+	}
+	
+	@Override
+	public void doPut(HttpServletRequest req, HttpServletResponse resp)
+		throws IOException {
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("utf-8");
+		
+		EntityManager em = EMF.get().createEntityManager();
+		Receipt r = getReceiptFromRequest(req, resp, em);
+		
+		if (r == null) {
+			em.close();
+			return;
+		}
+		
+		EntityTransaction tx = em.getTransaction();
+		tx.begin();
+		Error e = null;
+		try {
+			String am = req.getParameter("amount");
+
+			Float amount = new Float(0.0);
+			try {
+				am.replace(',', '.');
+				amount = Float.parseFloat(am);
+				r.setAmount(amount);
+			} catch (NumberFormatException nfe) {
+				e = Error.wrongAmount(am);
+				throw nfe;
+			}
+
+			String dt = req.getParameter("date");
+			Date date = null;
+			try {
+				long ts = Long.parseLong(dt) * 1000L;
+				date = new Date(ts);
+				if (!date.after(new Date(1262304000000L))) { // 1/1/2010 0:00
+					e = Error.dateTooOld(date);
+					throw new Exception("Date is too old");
+				}
+				r.setDate(date);
+			} catch (NumberFormatException nfe) {
+				e = Error.wrongDate(dt);
+				throw nfe;
+			}
+
+			String cat = req.getParameter("cat");
+			if (cat != null) {
+				r.setCategory(cat);
+			}
+
+			em.flush();
+			tx.commit();
+		} catch (Throwable t) {
+			tx.rollback();
+			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			if (e != null)
+				resp.getWriter().print(e.toJSON(em));
+		} finally {
+			em.close();
+		}
+	}
+
+	private Receipt getReceiptFromRequest(HttpServletRequest req,
+			HttpServletResponse resp, EntityManager em) throws IOException {
 		String key = req.getParameter("key");
 		
 		User u =  User.fromApiKey(em, key);
@@ -215,7 +253,7 @@ public class ReceiptManager extends HttpServlet {
 		if (key == null || u == null) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			resp.getWriter().print(Error.notAuthorised(key).toJSON(em));
-			return;
+			return null;
 		}
 		
 		String[] urlParts = req.getRequestURL().toString().split("receipt/");
@@ -223,16 +261,14 @@ public class ReceiptManager extends HttpServlet {
 		if (urlParts.length < 2) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			resp.getWriter().print(Error.noReceipt("").toJSON(em));
-			em.close();
-			return;
+			return null;
 		}
 		
 		String rid = urlParts[1];
 		if (rid == null || rid.equals("")) {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			resp.getWriter().print(Error.noReceipt(rid).toJSON(em));
-			em.close();
-			return;
+			return null;
 		}
 		
 		Long id = null;
@@ -242,8 +278,7 @@ public class ReceiptManager extends HttpServlet {
 		} catch (NumberFormatException nfe) {
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			resp.getWriter().print(Error.noReceipt(rid).toJSON(em));
-			em.close();
-			return;
+			return null;
 		}
 		
 		Receipt r = Receipt.fromId(em, u.getId().getId(), id);
@@ -251,21 +286,9 @@ public class ReceiptManager extends HttpServlet {
 		if (r == null ||!r.getUser().getApiKey().equals(key)) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			resp.getWriter().print(Error.notUsersReceipt().toJSON(em));
-			em.close();
-			return;
+			return null;
 		}
-		
-		em.remove(r);
-		resp.setStatus(HttpServletResponse.SC_OK);
-		em.close();
-	}
-	
-	@Override
-	public void doPut(HttpServletRequest req, HttpServletResponse resp)
-		throws IOException {
-		EntityManager em = EMF.get().createEntityManager();
-		if (!isAuth(req.getParameter("key"), resp, em)) 
-			return;
+		return r;
 	}
 	
 	private boolean isAuth(String key, HttpServletResponse resp, EntityManager em) throws IOException {

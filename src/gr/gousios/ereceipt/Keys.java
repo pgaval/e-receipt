@@ -23,7 +23,7 @@ public final class Keys {
 		Properties p = new Properties();
 		try {
 			
-			p.load(ClassLoader.getSystemClassLoader().getResourceAsStream(file));
+			p.load(Properties.class.getClassLoader().getResourceAsStream(file));
 		} catch (IOException e) {
 			Logger.getLogger("app").log(Level.SEVERE, "Cannot load application keys");
 		}

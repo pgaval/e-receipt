@@ -139,7 +139,7 @@ public class ReceiptManager extends HttpServlet {
 				em.persist(c);
 			}
 			if (cname != null && !cname.trim().equals("") 
-					&& c.getName() != null && !c.getName().equals(""))
+					&& (c.getName() == null || c.getName().equals("")))
 				c.setName(cname);
 
 			r.setAfm(c.getAfm());

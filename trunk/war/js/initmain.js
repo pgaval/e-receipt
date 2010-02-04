@@ -392,9 +392,6 @@ function delReceipt (rowid) {
 	
 	$.ajax({
 		url: '/receipt/' + rowid + '?key=' + $("#key").val(),
-		data: {
-			key : $("#key").val()
-		},
 		type: 'DELETE',
 		timeout: 50000,
 		success: function() {

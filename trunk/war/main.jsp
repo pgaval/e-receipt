@@ -112,7 +112,7 @@
               <td align="right">
                 <input id="key" type="hidden" name="key" value="<%=key%>"/>
                 <input id="username" type="hidden" name="username" value="<%=user%>"/>
-                <input id="appkey" type="hidden" name="appkey" value="<%=Keys.CLIENT %>" />
+                <input id="appkey" type="hidden" name="appkey" value="aa6cc36372ab959b76447beda23cc15" />
               </td>
             </tr>
             </table>

@@ -30,15 +30,19 @@ public class ClientAppManager extends HttpServlet {
 		EntityManager em = EMF.get().createEntityManager();
 		String url = req.getRequestURL().toString();
 		String key = req.getParameter("key");
+		String format = req.getParameter("format");
 		
-		if (!isAuth(key, resp, em)) 
+		if (!isAuth(key, resp, em, format)) 
 			return;
 		
 		String[] urlParts = url.split("app/");
 		
 		if (urlParts.length < 2) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			resp.getWriter().print(Error.noAppId(null).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.noAppId(null).toXML(em));
+			else
+				resp.getWriter().print(Error.noAppId(null).toJSON(em));
 			
 			/*for (ClientApp app : ClientApp.getAll(em)) {
 				resp.setStatus(HttpServletResponse.SC_OK);
@@ -53,10 +57,16 @@ public class ClientAppManager extends HttpServlet {
 		
 		if (ca == null) {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			resp.getWriter().print(Error.noAppId(null).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.noAppId(null).toXML(em));
+			else
+				resp.getWriter().print(Error.noAppId(null).toJSON(em));
 		} else {
 			resp.setStatus(HttpServletResponse.SC_OK);
-			resp.getWriter().print(ca.toJSON(em));
+			if (format != null && format.equals("xml"))
+					resp.getWriter().print(ca.toXML(em));
+			else
+					resp.getWriter().print(ca.toJSON(em));
 		}
 		
 		em.close();
@@ -72,10 +82,14 @@ public class ClientAppManager extends HttpServlet {
 		EntityManager em = EMF.get().createEntityManager();
 		String url = req.getRequestURL().toString();
 		String key = req.getParameter("key");
+		String format = req.getParameter("format");
 		
 		if (key == null || !key.equals(Keys.APPREGKEY)) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			resp.getWriter().print(Error.notAuthorised("").toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.notAuthorised("").toXML(em));
+			else
+				resp.getWriter().print(Error.notAuthorised("").toJSON(em));
 			em.close();
 			return;
 		}
@@ -84,7 +98,10 @@ public class ClientAppManager extends HttpServlet {
 		
 		if (appname == null || appname.equals("")) {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			resp.getWriter().print(Error.noAppId(null).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.noAppId(null).toXML(em));
+			else
+				resp.getWriter().print(Error.noAppId(null).toJSON(em));
 			em.close();
 			return;
 		}
@@ -104,7 +121,10 @@ public class ClientAppManager extends HttpServlet {
 			
 		} catch (NoSuchAlgorithmException e) {
 			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			resp.getWriter().print(Error.unknownError().toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.unknownError().toXML(em));
+			else
+				resp.getWriter().print(Error.unknownError().toJSON(em));
 			log.severe(e.toString());
 			em.close();
 			return;
@@ -125,20 +145,29 @@ public class ClientAppManager extends HttpServlet {
 				": " + t.getMessage());
 			tx.rollback();
 			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			resp.getWriter().print(Error.unknownError().toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.unknownError().toXML(em));
+			else
+				resp.getWriter().print(Error.unknownError().toJSON(em));
 			em.close();
 			return;
 		}
 		
 		resp.setStatus(HttpServletResponse.SC_CREATED);
-		resp.getWriter().print(app.toJSON(em));
+		if (format != null && format.equals("xml"))
+			resp.getWriter().print(app.toXML(em));
+		else
+			resp.getWriter().print(app.toJSON(em));
 		em.close();
 	}
 	
-	private boolean isAuth(String key, HttpServletResponse resp, EntityManager em) throws IOException {
+	private boolean isAuth(String key, HttpServletResponse resp, EntityManager em, String format) throws IOException {
 		if (key == null || User.fromApiKey(em, key) == null) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			resp.getWriter().print(Error.notAuthorised(key).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.notAuthorised(key).toXML(em));
+			else
+				resp.getWriter().print(Error.notAuthorised(key).toJSON(em));
 			return false;
 		}
 		

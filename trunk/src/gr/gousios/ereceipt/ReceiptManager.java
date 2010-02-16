@@ -41,6 +41,8 @@ public class ReceiptManager extends HttpServlet {
 		resp.setContentType("application/json");
 		resp.setCharacterEncoding("utf-8");
 		
+		String format = req.getParameter("format"); 
+		
 		EntityManager em = EMF.get().createEntityManager();
 		Receipt r = getReceiptFromRequest(req, resp, em);
 		
@@ -50,7 +52,10 @@ public class ReceiptManager extends HttpServlet {
 		}
 		
 		resp.setStatus(HttpServletResponse.SC_OK);
-		resp.getWriter().print(r.toJSON(em));
+		if (format != null && format.equals("xml"))
+			resp.getWriter().print(r.toXML(em));
+		else
+			resp.getWriter().print(r.toJSON(em));
 		em.clear();
 	}
 	
@@ -61,9 +66,11 @@ public class ReceiptManager extends HttpServlet {
 		resp.setContentType("text/plain");
 		resp.setCharacterEncoding("utf-8");
 		
+		String format = req.getParameter("format");
+		
 		EntityManager em = EMF.get().createEntityManager();
 		String key = req.getParameter("key");
-		if (!isAuth(key, resp, em)) 
+		if (!isAuth(key, resp, em, format)) 
 			return;
 		
 		String appkey = req.getParameter("appkey");
@@ -71,7 +78,10 @@ public class ReceiptManager extends HttpServlet {
 		
 		if (app == null) {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			resp.getWriter().print(Error.appNotAuthorised(appkey).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.appNotAuthorised(appkey).toXML(em));
+			else
+				resp.getWriter().print(Error.appNotAuthorised(appkey).toJSON(em));
 			em.close();
 			return;
 		}
@@ -84,7 +94,10 @@ public class ReceiptManager extends HttpServlet {
 		
 		if (afm == null || dt == null || am == null) {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			resp.getWriter().print(Error.missParam(null).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.missParam(null).toXML(em));
+			else
+				resp.getWriter().print(Error.missParam(null).toJSON(em));
 			em.close();
 			return;
 		}
@@ -95,7 +108,10 @@ public class ReceiptManager extends HttpServlet {
 			amount = Float.parseFloat(am);
 		} catch (NumberFormatException nfe) {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			resp.getWriter().print(Error.wrongAmount(am).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.wrongAmount(am).toXML(em));
+			else
+				resp.getWriter().print(Error.wrongAmount(am).toJSON(em));
 			em.close();
 			return;
 		}
@@ -106,13 +122,19 @@ public class ReceiptManager extends HttpServlet {
 			date = new Date(ts);
 			if (!date.after(new Date(1262304000000L))){ //1/1/2010 0:00
 				resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				resp.getWriter().print(Error.dateTooOld(date).toJSON(em));
+				if (format != null && format.equals("xml"))
+					resp.getWriter().print(Error.dateTooOld(date).toXML(em));
+				else
+					resp.getWriter().print(Error.dateTooOld(date).toJSON(em));
 				em.close();
 				return;
 			}
 		} catch (NumberFormatException nfe) {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			resp.getWriter().print(Error.wrongDate(dt).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.wrongDate(dt).toXML(em));
+			else
+				resp.getWriter().print(Error.wrongDate(dt).toJSON(em));
 			em.close();
 			return;
 		}
@@ -153,13 +175,19 @@ public class ReceiptManager extends HttpServlet {
 					" by user " + u.getName() + " Reason:" + t.getMessage());
 			tx.rollback();
 			resp.setStatus(resp.SC_INTERNAL_SERVER_ERROR);
-			resp.getWriter().print(Error.unknownError().toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.unknownError().toXML(em));
+			else
+				resp.getWriter().print(Error.unknownError().toJSON(em));
 			return;
 		}
 		
 		log.info("Receipt " + r.getId() + " was created successfully");
 		resp.setStatus(HttpServletResponse.SC_CREATED);
-		resp.getWriter().print(r.toJSON(em));
+		if (format != null && format.equals("xml"))
+			resp.getWriter().print(r.toXML(em));
+		else
+			resp.getWriter().print(r.toJSON(em));
 		em.close();
 	}
 	
@@ -188,6 +216,7 @@ public class ReceiptManager extends HttpServlet {
 		resp.setContentType("application/json");
 		resp.setCharacterEncoding("utf-8");
 		
+		String format = req.getParameter("format");
 		EntityManager em = EMF.get().createEntityManager();
 		Receipt r = getReceiptFromRequest(req, resp, em);
 		
@@ -238,7 +267,11 @@ public class ReceiptManager extends HttpServlet {
 			tx.rollback();
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			if (e != null)
-				resp.getWriter().print(e.toJSON(em));
+				if (format != null && format.equals("xml"))
+					resp.getWriter().print(e.toXML(em));
+				else
+					resp.getWriter().print(e.toJSON(em));
+			
 		} finally {
 			em.close();
 		}
@@ -247,12 +280,16 @@ public class ReceiptManager extends HttpServlet {
 	private Receipt getReceiptFromRequest(HttpServletRequest req,
 			HttpServletResponse resp, EntityManager em) throws IOException {
 		String key = req.getParameter("key");
+		String format = req.getParameter("format");
 		
 		User u =  User.fromApiKey(em, key);
 		
 		if (key == null || u == null) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			resp.getWriter().print(Error.notAuthorised(key).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.notAuthorised(key).toXML(em));
+			else
+				resp.getWriter().print(Error.notAuthorised(key).toJSON(em));
 			return null;
 		}
 		
@@ -260,14 +297,20 @@ public class ReceiptManager extends HttpServlet {
 		
 		if (urlParts.length < 2) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			resp.getWriter().print(Error.noReceipt("").toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.noReceipt("").toXML(em));
+			else
+				resp.getWriter().print(Error.noReceipt("").toJSON(em));
 			return null;
 		}
 		
 		String rid = urlParts[1];
 		if (rid == null || rid.equals("")) {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			resp.getWriter().print(Error.noReceipt(rid).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.noReceipt(rid).toXML(em));
+			else
+				resp.getWriter().print(Error.noReceipt(rid).toJSON(em));
 			return null;
 		}
 		
@@ -277,7 +320,10 @@ public class ReceiptManager extends HttpServlet {
 			id = Long.parseLong(rid);
 		} catch (NumberFormatException nfe) {
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			resp.getWriter().print(Error.noReceipt(rid).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.noReceipt(rid).toXML(em));
+			else
+				resp.getWriter().print(Error.noReceipt(rid).toJSON(em));
 			return null;
 		}
 		
@@ -285,16 +331,22 @@ public class ReceiptManager extends HttpServlet {
 		
 		if (r == null ||!r.getUser().getApiKey().equals(key)) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			resp.getWriter().print(Error.notUsersReceipt().toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.notUsersReceipt().toXML(em));
+			else
+				resp.getWriter().print(Error.notUsersReceipt().toJSON(em));
 			return null;
 		}
 		return r;
 	}
 	
-	private boolean isAuth(String key, HttpServletResponse resp, EntityManager em) throws IOException {
+	private boolean isAuth(String key, HttpServletResponse resp, EntityManager em, String format) throws IOException {
 		if (key == null || User.fromApiKey(em, key) == null) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			resp.getWriter().print(Error.notAuthorised(key).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.notAuthorised(key).toXML(em));
+			else
+				resp.getWriter().print(Error.notAuthorised(key).toJSON(em));
 			return false;
 		}
 		

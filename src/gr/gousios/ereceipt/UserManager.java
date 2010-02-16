@@ -30,6 +30,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.json.JSONObject;
+import net.sf.json.xml.XMLSerializer;
+
 @SuppressWarnings("serial")
 public class UserManager extends HttpServlet {
 
@@ -41,13 +44,19 @@ public class UserManager extends HttpServlet {
 		
 		resp.setContentType("text/plain");
 		resp.setCharacterEncoding("utf-8");
+		
+		String format = req.getParameter("format");
+		
 		EntityManager em = EMF.get().createEntityManager();
 		
 		String url = req.getRequestURL().toString();
 		
 		if (url.split("user/").length < 2) {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			resp.getWriter().print(Error.noSuchUser("").toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.noSuchUser("").toXML(em));
+			else
+				resp.getWriter().print(Error.noSuchUser("").toJSON(em));
 			em.close();
 			return;
 		}
@@ -74,7 +83,10 @@ public class UserManager extends HttpServlet {
 			
 			if (u == null) {
 				resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				resp.getWriter().print(Error.noSuchUser(uname).toJSON(em));
+				if (format != null && format.equals("xml"))
+					resp.getWriter().print(Error.noSuchUser(uname).toXML(em));
+				else
+					resp.getWriter().print(Error.noSuchUser(uname).toJSON(em));
 				em.close();
 				return;
 			}
@@ -95,16 +107,29 @@ public class UserManager extends HttpServlet {
 				sb.append("\n]");
 				
 				resp.setStatus(HttpServletResponse.SC_OK);
-				resp.getWriter().print(sb.toString());
+				if (format != null &&format.equals("xml"))
+				{
+					JSONObject jsonobj = JSONObject.fromObject("{receipts:" + sb.toString() + "}");	
+					String xml = new XMLSerializer().write( jsonobj );
+					resp.getWriter().print(xml); 
+				}
+				else
+					resp.getWriter().print(sb.toString());
 				em.close();
 				return;
 			} else {
 				resp.setStatus(HttpServletResponse.SC_OK);
-				resp.getWriter().print(u.toJSON(em));
+				if (format != null && format.equals("xml"))
+					resp.getWriter().print(u.toXML(em));
+				else
+					resp.getWriter().print(u.toJSON(em));
 			}
 		} else {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			resp.getWriter().print(Error.wrongPasswd(uname).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.wrongPasswd(uname).toXML(em));
+			else
+				resp.getWriter().print(Error.wrongPasswd(uname).toJSON(em));
 		}
 		em.close();
 	}
@@ -115,6 +140,9 @@ public class UserManager extends HttpServlet {
 
 		resp.setContentType("application/json");
 		resp.setCharacterEncoding("utf-8");
+		
+		String format = req.getParameter("format");
+		
 		EntityManager em = EMF.get().createEntityManager();
 		
 		String uname = (req.getParameter("uname") == null) ? "" : 
@@ -127,13 +155,19 @@ public class UserManager extends HttpServlet {
 			req.getParameter("email");
 		
 		if (uname == null || uname.equals("") || uname.length() < 4) {
-			resp.getWriter().print(Error.unameTooShort(uname).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.unameTooShort(uname).toXML(em));
+			else
+				resp.getWriter().print(Error.unameTooShort(uname).toJSON(em));
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 		
 		if (User.fromUserName(em, uname) != null) {
-			resp.getWriter().print(Error.userExists(uname).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.userExists(uname).toXML(em));
+			else
+				resp.getWriter().print(Error.userExists(uname).toJSON(em));
 			resp.setStatus(HttpServletResponse.SC_CONFLICT);
 			em.close();
 			return;
@@ -141,7 +175,10 @@ public class UserManager extends HttpServlet {
 		
 		if (passwd.equals("") || passwd.length() < 6) {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			resp.getWriter().print(Error.passwdTooShort(uname).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.passwdTooShort(uname).toXML(em));
+			else
+				resp.getWriter().print(Error.passwdTooShort(uname).toJSON(em));
 			em.close();
 			return;
 		}
@@ -168,7 +205,10 @@ public class UserManager extends HttpServlet {
 			
 		} catch (NoSuchAlgorithmException e) {
 			resp.setStatus(500);
-			resp.getWriter().print(Error.unknownError().toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.unknownError().toXML(em));
+			else
+				resp.getWriter().print(Error.unknownError().toJSON(em));
 			log.severe(e.toString());
 			em.close();
 			return;
@@ -186,13 +226,19 @@ public class UserManager extends HttpServlet {
 					" Reason:" + t.getMessage());
 			tx.rollback();
 			resp.setStatus(500);
-			resp.getWriter().print(Error.unknownError().toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.unknownError().toXML(em));
+			else
+				resp.getWriter().print(Error.unknownError().toJSON(em));
 			return;
 		} 
 			
 		log.info("User " + u.getName() + " was created successfully");
 		resp.setStatus(HttpServletResponse.SC_CREATED);
-		resp.getWriter().print(u.toJSON(em));
+		if (format != null && format.equals("xml"))
+			resp.getWriter().print(u.toXML(em));
+		else
+			resp.getWriter().print(u.toJSON(em));
 		em.close();
 	}
 	

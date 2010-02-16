@@ -42,8 +42,9 @@ public class CompanyManager extends HttpServlet {
 		
 		EntityManager em = EMF.get().createEntityManager();
 		String key = req.getParameter("key");
+		String format = req.getParameter("format");
 		
-		if (!isAuth(key, resp, em)) {
+		if (!isAuth(key, resp, em, format)) {
 			em.close();
 			return;
 		}
@@ -52,7 +53,10 @@ public class CompanyManager extends HttpServlet {
 		
 		if (url.split("company/").length < 2) {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			resp.getWriter().print(Error.noCompany("").toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.noCompany("").toXML(em));
+			else
+				resp.getWriter().print(Error.noCompany("").toJSON(em));
 			em.close();
 			return;
 		}
@@ -68,7 +72,10 @@ public class CompanyManager extends HttpServlet {
 			
 			if (!name.equals("names")) {
 				resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				resp.getWriter().print(Error.unknownCall(name).toJSON(em));
+				if (format != null && format.equals("xml"))
+					resp.getWriter().print(Error.unknownCall(name).toXML(em));
+				else
+					resp.getWriter().print(Error.unknownCall(name).toJSON(em));
 				em.close();
 				return;
 			}
@@ -78,14 +85,20 @@ public class CompanyManager extends HttpServlet {
 		
 		if (c == null) {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			resp.getWriter().print(Error.noCompany(afm).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.noCompany(afm).toXML(em));
+			else
+				resp.getWriter().print(Error.noCompany(afm).toJSON(em));
 			em.close();
 			return;
 		}
 		
 		//Process call: /company/<afm>
 		resp.setStatus(HttpServletResponse.SC_OK);
-		resp.getWriter().print(c.toJSON(em));
+		if (format != null && format.equals("xml"))
+			resp.getWriter().print(c.toXML(em));
+		else
+			resp.getWriter().print(c.toJSON(em));
 		em.close();
 		return;
 	}
@@ -98,8 +111,9 @@ public class CompanyManager extends HttpServlet {
 		resp.setCharacterEncoding("utf-8");
 		EntityManager em = EMF.get().createEntityManager();
 		String key = req.getParameter("key");
+		String format = req.getParameter("format");
 		
-		if (!isAuth(key, resp, em)) 
+		if (!isAuth(key, resp, em, format)) 
 			return;
 		
 		String url = req.getRequestURL().toString();
@@ -115,7 +129,10 @@ public class CompanyManager extends HttpServlet {
 
 			if (newName == null || newName.equals(null)) {
 				resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				resp.getWriter().print(Error.missParam("name").toJSON(em));
+				if (format != null && format.equals("xml"))
+					resp.getWriter().print(Error.missParam("name").toXML(em));
+				else
+					resp.getWriter().print(Error.missParam("name").toJSON(em));
 				em.close();
 				return;
 			}
@@ -127,14 +144,20 @@ public class CompanyManager extends HttpServlet {
 		
 		if (afm == null || afm.equals("")) {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			resp.getWriter().print(Error.missParam("afm").toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.missParam("afm").toXML(em));
+			else
+				resp.getWriter().print(Error.missParam("afm").toJSON(em));
 			em.close();
 			return;
 		}
 		
 		if (!checkAFM(afm)) {
 			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			resp.getWriter().print(Error.wrongAFM(afm).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.wrongAFM(afm).toXML(em));
+			else
+				resp.getWriter().print(Error.wrongAFM(afm).toJSON(em));
 			em.close();
 			return;
 		}
@@ -143,7 +166,10 @@ public class CompanyManager extends HttpServlet {
 		
 		if (c != null) {
 			resp.setStatus(HttpServletResponse.SC_CONFLICT);
-			resp.getWriter().print(Error.duplComp(afm).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.duplComp(afm).toXML(em));
+			else
+				resp.getWriter().print(Error.duplComp(afm).toJSON(em));
 			em.close();
 			return;
 		}
@@ -165,7 +191,10 @@ public class CompanyManager extends HttpServlet {
 
 		log.info("Company " + c.getAfm() + " was created successfully");
 		resp.setStatus(HttpServletResponse.SC_CREATED);
-		resp.getWriter().print(c.toJSON(em));
+		if (format != null && format.equals("xml"))
+			resp.getWriter().print(c.toXML(em));
+		else
+			resp.getWriter().print(c.toJSON(em));
 		em.close();
 	}
 	
@@ -176,9 +205,11 @@ public class CompanyManager extends HttpServlet {
 		resp.setCharacterEncoding("utf-8");
 		
 		String key = req.getParameter("key");
+		String format = req.getParameter("format");
+		
 		EntityManager em = EMF.get().createEntityManager();
 
-		if (!isAuth(key, resp, em)) 
+		if (!isAuth(key, resp, em, format)) 
 			return;
 		
 		resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
@@ -191,19 +222,24 @@ public class CompanyManager extends HttpServlet {
 		resp.setContentType("text/plain");
 		resp.setCharacterEncoding("utf-8");
 		String key = req.getParameter("key");
+		String format = req.getParameter("format");
+		
 		EntityManager em = EMF.get().createEntityManager();
 		
-		if (!isAuth(key, resp, em)) 
+		if (!isAuth(key, resp, em, format)) 
 			return;
 		
 		resp.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
 		log.severe("Company.PUT from client:" + req.getRemoteHost());
 	} 
 	
-	private boolean isAuth(String key, HttpServletResponse resp, EntityManager em) throws IOException {
+	private boolean isAuth(String key, HttpServletResponse resp, EntityManager em, String format) throws IOException {
 		if (key == null || User.fromApiKey(em, key) == null) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			resp.getWriter().print(Error.notAuthorised(key).toJSON(em));
+			if (format != null && format.equals("xml"))
+				resp.getWriter().print(Error.notAuthorised(key).toXML(em));
+			else
+				resp.getWriter().print(Error.notAuthorised(key).toJSON(em));
 			return false;
 		}
 		

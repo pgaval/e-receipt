@@ -27,7 +27,7 @@
          <li>Αποδείξεις</li>
        </ul>
        Αντιστοιχα και το API της εφαρμογής είναι προσαρμοσμένο στο να διαχειρίζεται αυτές
-       τις 3 ενέργειες. Το API βασίζεται σε αναπαράσταση REST ενώ όλες οι μέθοδοι επιστρέφουν
+       τις 3 ενέργειες. Το API βασίζεται σε αναπαράσταση REST ή XML ενώ όλες οι μέθοδοι επιστρέφουν
        δεδομένα σε αναπαράσταση <a href="http://www.json.org">JSON</a>, για παράδειγμα 
        η κλήση 
        <pre>http://localhost:8888/user/gousiosg?passwd=xxxxx</pre>
@@ -41,6 +41,22 @@
 }}
        </pre>
        
+       Για να επιστραφούν δεδομένα σε αναπαράσταση XML, θα πρέπει στην κλήση να υπάρχει η παράμετρος
+       <tt>format=xml</tt>. Χωρίς αυτή την παράμετρο, οι κλήσεις στο API επιστρέφουν JSON. Για παράδειγμα 
+       η κλήση 
+       <pre>http://localhost:8888/user/gousiosg?passwd=xxxxx&format=xml</pre>
+        θα επιστρέψει την αναπαράσταση του αντικειμένου user στην παρακάτω μορφή:
+       <pre>
+<?xml version="1.0" encoding="UTF-8"?>
+&lt;o&gt;
+  &lt;user class="object"&gt;
+    &lt;apikey type="string">8bb853821c64523d81d2204bcf7952&lt;/apikey&gt;
+    &lt;name type="string">Γεώργιος Γούσιος&lt;/name&gt;
+    &lt;passwd type="string">xxxxx&lt;/passwd&gt;
+    &lt;username type="string">gousiosg&lt;/username&gt;
+  &lt;/user&gt;
+&lt;/o&gt;
+       </pre>
        <em>Σαν γενικός κανόνας, όλες οι κλήσεις του API για όλες τις οντότητες πέρνουν σαν παράμετρο το κλειδί του χρήστη, για παράδειγμα:</em>
        <pre>
 http://localhost:8888/company/090034337?key=&lt;userkey&gt;
@@ -93,7 +109,7 @@ POST
 DELETE
   /receipt/&lt;id&gt; - Delete a receipt by id
 PUT
-  Not implemented yet
+  /receipt/&lt;id&gt; - Replace a receipt by id, arguments are the same as in the case of POST
     </pre>
            <h3>Εφαρμογές</h3>
     Η οντότητα "Εφαρμογές" υποστηρίζει την εγγραφή εφαρμογών στο σύστημα ώστε να είναι δυνατή η καταχώρηση αποδείξεων. 
